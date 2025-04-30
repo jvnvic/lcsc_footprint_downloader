@@ -61,10 +61,21 @@ def get_footprint(lcsc_id=None):
 
     footprint = EasyedaFootprintImporter(cad_data).get_footprint()
     exported = ExporterFootprintKicad(footprint)
-    ki_footprint_str = exported.export(footprint_full_path="", model_3d_path="")
+    ki = exported.get_ki_footprint()
+
+    mod_str = f"(module {ki.info.name} (layer F.Cu) (tedit 5DC5F6A4)\n"
+    mod_str += "  (fp_text reference REF** (at 0 0) (layer F.SilkS)\n    (effects (font (size 1 1) (thickness 0.15)))\n  )\n"
+    mod_str += f"  (fp_text value {ki.info.name} (at 0 0) (layer F.Fab)\n    (effects (font (size 1 1) (thickness 0.15)))\n  )\n"
+
+    for pad in ki.pads:
+        drill = f" {pad.drill}" if pad.drill else ""
+        mod_str += f"  (pad {pad.number} {pad.type} {pad.shape} (at {pad.pos_x:.2f} {pad.pos_y:.2f} {pad.orientation:.2f}) " \
+                   f"(size {pad.width:.2f} {pad.height:.2f}) (layers {pad.layers}){drill})\n"
+
+    mod_str += ")\n"
 
     buffer = BytesIO()
-    buffer.write(ki_footprint_str.encode("utf-8"))
+    buffer.write(mod_str.encode("utf-8"))
     buffer.seek(0)
     return send_file(
         buffer,
