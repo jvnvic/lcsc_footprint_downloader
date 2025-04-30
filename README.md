@@ -11,7 +11,7 @@ Simple interface, fast in-memory processing, and one-click `.zip` export for you
 
 ---
 
-## 🔧 Features
+## Features
 
 - Enter any `LCSC ID` (e.g. `C2040`)
 - Download individually:
@@ -30,7 +30,7 @@ Simple interface, fast in-memory processing, and one-click `.zip` export for you
 
 ---
 
-## ⚙️ Built With
+## Built With
 
 - Python + [Flask](https://flask.palletsprojects.com/)
 - [easyeda2kicad.py](https://github.com/uPesy/easyeda2kicad.py)
@@ -46,6 +46,6 @@ Simple interface, fast in-memory processing, and one-click `.zip` export for you
 
 ---
 
-## 📄 License
+## License
 
 MIT – use freely, modify openly.
