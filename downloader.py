@@ -2,14 +2,14 @@ from flask import Flask, send_file, request, abort
 from io import BytesIO
 import json
 
-from easyeda2kicad.easyeda.easyeda_api import EasyedaApi
-from easyeda2kicad.easyeda.easyeda_importer import (
+from easyeda2kicad.easyeda_api import EasyedaApi
+from easyeda2kicad.easyeda_importer import (
     Easyeda3dModelImporter,
     EasyedaFootprintImporter,
     EasyedaSymbolImporter,
 )
-from easyeda2kicad.kicad.kicad_footprint_exporter import KicadFootprintExporter
-from easyeda2kicad.kicad.kicad_symbol_exporter import KicadSymbolExporter
+from easyeda2kicad.export_kicad_footprint import ExporterFootprintKicad
+from easyeda2kicad.export_kicad_symbol import ExporterSymbolKicad
 
 app = Flask(__name__)
 
@@ -56,7 +56,7 @@ def get_model(lcsc_id=None):
         )
 
     elif download_type == "kicad_mod" and footprint:
-        kicad_mod = KicadFootprintExporter(footprint).export()
+        kicad_mod = ExporterFootprintKicad(footprint).output.export()
         return send_file(
             BytesIO(kicad_mod.encode("utf-8")),
             as_attachment=True,
@@ -65,7 +65,7 @@ def get_model(lcsc_id=None):
         )
 
     elif download_type == "kicad_sym" and symbol:
-        kicad_sym = KicadSymbolExporter(symbol).export()
+        kicad_sym = ExporterSymbolKicad(symbol).output.export()
         return send_file(
             BytesIO(kicad_sym.encode("utf-8")),
             as_attachment=True,
@@ -80,8 +80,8 @@ def get_model(lcsc_id=None):
 @app.route("/")
 def index():
     return """
-    <title>LCSC STEP/Symbol/Footprint Downloader</title>
-    <h2>LCSC Component File Downloader</h2>
+    <title>LCSC KiCad Part Downloader</title>
+    <h2>LCSC Component Downloader</h2>
     <form action="/get_model" method="GET">
         LCSC ID: <input type="text" name="lcsc_id"><br><br>
         Download type:
