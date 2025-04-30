@@ -43,6 +43,7 @@ Simple interface, fast in-memory processing, and one-click `.zip` export for you
 - Forked from [**wormyrocks**](https://github.com/wormyrocks/lcsc_step_downloader)
 - Based on [**easy2kicad**](https://github.com/uPesy/easyeda2kicad.py)
 - By **Daniel Jovanovic**
+- Almost completely vibe-coded :)
 
 ---
 
