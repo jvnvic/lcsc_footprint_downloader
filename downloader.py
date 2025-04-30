@@ -35,7 +35,7 @@ def get_symbol(lcsc_id=None):
 
     symbol = EasyedaSymbolImporter(cad_data).get_symbol()
     exported = ExporterSymbolKicad(symbol, KicadVersion.v6)
-    ki_symbol_str = "\n".join(exported.output.export_v6())
+    ki_symbol_str = exported.output.export_v6()  # ✅ FIXED
 
     buffer = BytesIO()
     buffer.write(ki_symbol_str.encode("utf-8"))
