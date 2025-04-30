@@ -105,23 +105,30 @@ def get_step(lcsc_id=None):
     if not lcsc_id:
         abort(400, "Missing LCSC ID")
 
-    cad_data = get_cad_data(lcsc_id)
-    if not cad_data:
-        abort(404, "Component not found")
+    try:
+        api = EasyedaApi()
+        cad_data = api.get_cad_data_of_component(lcsc_id)
+        model = Easyeda3dModelImporter(cad_data, download_raw_3d_model=False).create_3d_model()
 
-    model = Easyeda3dModelImporter(cad_data, download_raw_3d_model=False).create_3d_model()
-    if not model or not model.step:
-        abort(404, "STEP model not available")
+        if not model or not model.uuid:
+            abort(404, "Model UUID missing")
 
-    buffer = BytesIO()
-    buffer.write(model.step)
-    buffer.seek(0)
-    return send_file(
-        buffer,
-        as_attachment=True,
-        download_name=f"{model.name}.step",
-        mimetype="application/step",
-    )
+        step_data = api.get_step_3d_model(model.uuid)
+        if not step_data:
+            abort(404, "STEP data not found")
+
+        buffer = BytesIO()
+        buffer.write(step_data)
+        buffer.seek(0)
+        return send_file(
+            buffer,
+            as_attachment=True,
+            download_name=f"{model.name}.step",
+            mimetype="application/step",
+        )
+    except Exception as e:
+        print("STEP download error:", e)
+        abort(500, "Internal error fetching STEP model")
 
 
 @app.route("/")
