@@ -1,5 +1,7 @@
 from flask import Flask, send_file, request, abort
 from io import BytesIO
+import tempfile
+import os
 
 from easyeda2kicad.easyeda.easyeda_api import EasyedaApi
 from easyeda2kicad.easyeda.easyeda_importer import (
@@ -65,26 +67,26 @@ def get_footprint(lcsc_id=None):
 
     footprint = EasyedaFootprintImporter(cad_data).get_footprint()
     exported = ExporterFootprintKicad(footprint)
-    ki = exported.get_ki_footprint()
 
-    mod_str = f"(module {ki.info.name} (layer F.Cu) (tedit 5DC5F6A4)\n"
-    mod_str += "  (fp_text reference REF** (at 0 0) (layer F.SilkS)\n    (effects (font (size 1 1) (thickness 0.15)))\n  )\n"
-    mod_str += f"  (fp_text value {ki.info.name} (at 0 0) (layer F.Fab)\n    (effects (font (size 1 1) (thickness 0.15)))\n  )\n"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filename = f"{footprint.info.name}.kicad_mod"
+        filepath = os.path.join(tmpdir, filename)
 
-    for pad in ki.pads:
-        drill = f" {pad.drill}" if pad.drill else ""
-        mod_str += f"  (pad {pad.number} {pad.type} {pad.shape} (at {pad.pos_x:.2f} {pad.pos_y:.2f} {pad.orientation:.2f}) " \
-                   f"(size {pad.width:.2f} {pad.height:.2f}) (layers {pad.layers}){drill})\n"
+        exported.export(
+            footprint_full_path=filepath,
+            model_3d_path="${KIPRJMOD}/3dmodels",  # Or your custom path
+        )
 
-    mod_str += ")\n"
+        with open(filepath, "rb") as f:
+            content = f.read()
 
     buffer = BytesIO()
-    buffer.write(mod_str.encode("utf-8"))
+    buffer.write(content)
     buffer.seek(0)
     return send_file(
         buffer,
         as_attachment=True,
-        download_name=f"{lcsc_id}.kicad_mod",
+        download_name=filename,
         mimetype="text/plain",
     )
 
