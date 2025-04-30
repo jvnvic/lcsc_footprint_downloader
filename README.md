@@ -1,6 +1,6 @@
 # LCSC KiCad Exporter
 
-A modern web app to download KiCad-compatible **symbols**, **footprints**, and **3D STEP models** from [LCSC](https://lcsc.com) part numbers.
+A modern web app to download KiCad-compatible **symbols**, **footprints**, and **3D STEP models** from [LCSC/JLCPCB](https://lcsc.com) part numbers.
 
 Simple interface, fast in-memory processing, and one-click `.zip` export for your convenience.
 
