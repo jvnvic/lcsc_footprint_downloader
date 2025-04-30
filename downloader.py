@@ -266,6 +266,19 @@ def index():
             button + button {
                 margin-top: 0.5rem;
             }
+
+            .credits {
+                margin-top: 2rem;
+                font-size: 0.85rem;
+                color: #ffffff;
+                opacity: 0.7;
+                text-align: center;
+            }
+
+            .credits a {
+                color: #ffffff;
+                text-decoration: underline;
+            }
         </style>
     </head>
     <body>
@@ -280,9 +293,15 @@ def index():
             <button formaction="/get_step">Download 3D Model (.step)</button>
             <button formaction="/get_all">Download All as ZIP</button>
         </form>
+        <div class="credits">
+            Forked from <a href="https://github.com/wormyrocks/lcsc_step_downloader" target="_blank">wormyrocks</a><br>
+            Based on <a href="https://github.com/uPesy/easyeda2kicad.py/" target="_blank">easy2kicad</a><br>
+            By Daniel Jovanovic
+        </div>
     </body>
     </html>
     """
+
 
 
 
