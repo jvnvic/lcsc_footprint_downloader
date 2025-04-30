@@ -1,6 +1,7 @@
-{
-	"name": "lcsc_footprint_downloader",
-	"description": "Download footprint files from LCSC using easyeda2kicad python lib",
-	"repository": "https://github.com/jvnvic/lcsc_footprint_downloader",
-	"keywords": ["flask", "heroku"]
-}
+services:
+  - type: web
+    name: lcsc-downloader
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: gunicorn downloader:app
