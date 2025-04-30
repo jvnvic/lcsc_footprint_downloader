@@ -2,6 +2,7 @@ from flask import Flask, send_file, request, abort
 from io import BytesIO
 import tempfile
 import os
+import zipfile
 
 from easyeda2kicad.easyeda.easyeda_api import EasyedaApi
 from easyeda2kicad.easyeda.easyeda_importer import (
@@ -131,6 +132,64 @@ def get_step(lcsc_id=None):
         abort(500, "Internal error fetching STEP model")
 
 
+@app.route("/get_all", methods=["GET"])
+@app.route("/get_all/<lcsc_id>", methods=["GET"])
+def get_all(lcsc_id=None):
+    lcsc_id = lcsc_id or request.args.get("lcsc_id")
+    if not lcsc_id:
+        abort(400, "Missing LCSC ID")
+
+    cad_data = get_cad_data(lcsc_id)
+    if not cad_data:
+        abort(404, "Component not found")
+
+    files = {}
+
+    # SYMBOL
+    symbol = EasyedaSymbolImporter(cad_data).get_symbol()
+    symbol_exporter = ExporterSymbolKicad(symbol, KicadVersion.v6)
+    symbol_str = (
+        "(kicad_symbol_lib (version 20211014) (generator easyeda2kicad)\n"
+        + symbol_exporter.export(footprint_lib_name="easyeda2kicad")
+        + ")\n"
+    )
+    files[f"{lcsc_id}.kicad_sym"] = symbol_str.encode("utf-8")
+
+    # FOOTPRINT
+    footprint = EasyedaFootprintImporter(cad_data).get_footprint()
+    footprint_exporter = ExporterFootprintKicad(footprint)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        fp_path = os.path.join(tmpdir, f"{footprint.info.name}.kicad_mod")
+        footprint_exporter.export(fp_path, model_3d_path="${KIPRJMOD}/3dmodels")
+        with open(fp_path, "rb") as f:
+            files[f"{footprint.info.name}.kicad_mod"] = f.read()
+
+    # STEP
+    try:
+        api = EasyedaApi()
+        model = Easyeda3dModelImporter(cad_data, download_raw_3d_model=False).create_3d_model()
+        if model and model.uuid:
+            step_data = api.get_step_3d_model(model.uuid)
+            if step_data:
+                files[f"{model.name}.step"] = step_data
+    except Exception as e:
+        print(f"STEP error: {e}")
+
+    # ZIP all
+    zip_buffer = BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+        for filename, data in files.items():
+            zipf.writestr(filename, data)
+
+    zip_buffer.seek(0)
+    return send_file(
+        zip_buffer,
+        as_attachment=True,
+        download_name=f"{lcsc_id}.zip",
+        mimetype="application/zip",
+    )
+
+
 @app.route("/")
 def index():
     return """
@@ -140,7 +199,8 @@ def index():
         <label>LCSC ID: <input name="lcsc_id" type="text" required></label><br><br>
         <button formaction="/get_symbol">Download Symbol (.kicad_sym)</button><br><br>
         <button formaction="/get_footprint">Download Footprint (.kicad_mod)</button><br><br>
-        <button formaction="/get_step">Download 3D Model (.step)</button>
+        <button formaction="/get_step">Download 3D Model (.step)</button><br><br>
+        <button formaction="/get_all">Download All as ZIP</button>
     </form>
     """
 
