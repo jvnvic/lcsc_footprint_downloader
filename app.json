@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: lcsc-downloader
-    env: python
-    plan: free
-    buildCommand: ""
-    startCommand: gunicorn downloader:app
