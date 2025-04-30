@@ -6,7 +6,7 @@ Simple interface, fast in-memory processing, and one-click `.zip` export for you
 
 ---
 
-![Screenshot of the app](<INSERT_SCREENSHOT_LINK_HERE>)
+![Screenshot of the app](https://i.imgur.com/vcv36CX.jpeg)
 
 
 ---
