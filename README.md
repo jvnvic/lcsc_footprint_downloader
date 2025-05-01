@@ -4,6 +4,8 @@ A modern web app to download KiCad-compatible **symbols**, **footprints**, and *
 
 Simple interface, fast in-memory processing, and one-click `.zip` export for your convenience.
 
+[Open the app](https://lcscfootprintdownloader.onrender.com/)  
+
 ---
 
 ![Screenshot of the app](https://i.imgur.com/bpe9J1B.png)
