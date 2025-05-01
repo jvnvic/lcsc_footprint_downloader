@@ -6,7 +6,7 @@ Simple interface, fast in-memory processing, and one-click `.zip` export for you
 
 ---
 
-![Screenshot of the app](https://i.imgur.com/vcv36CX.jpeg)
+![Screenshot of the app](https://i.imgur.com/bpe9J1B.png)
 
 
 ---
